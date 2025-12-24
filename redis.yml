@@ -1,0 +1,72 @@
+# version: "3.9"
+# valkey
+
+services:
+  valkey:
+    image: ${REDIS_IMAGE}
+    container_name: valkey
+    restart: unless-stopped
+
+    command:
+      - valkey-server
+      # Network
+      - --bind
+      - 0.0.0.0
+      - --port
+      - "6379"
+      - --protected-mode
+      - "yes"
+
+      # Security
+      - --requirepass
+      - ${VALKEY_PASSWORD}
+
+      # Persistence (PROD SAFE)
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+      - --save
+      - "900 1"
+      - --save
+      - "300 10"
+      - --save
+      - "60 10000"
+
+      # Memory control
+      - --maxmemory
+      - ${VALKEY_MAXMEMORY}
+      - --maxmemory-policy
+      - ${VALKEY_MAXMEMORY_POLICY}
+
+      # Reliability
+      - --stop-writes-on-bgsave-error
+      - "yes"
+      - --rdbcompression
+      - "yes"
+      - --rdbchecksum
+      - "yes"
+
+      # Network sanity
+      - --tcp-backlog
+      - "511"
+      - --timeout
+      - "0"
+      - --tcp-keepalive
+      - "300"
+
+    ports:
+      - "${REDIS_PORT}:6379"
+
+    volumes:
+      - valkey-data:/data
+
+    networks:
+      - data-net
+
+networks:
+  data-net:
+    driver: bridge
+
+volumes:
+  valkey-data:

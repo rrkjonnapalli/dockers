@@ -1,0 +1,108 @@
+# version: "3.9"
+# redpanda
+
+services:
+  redpanda-1:
+    image: ${REDPANDA_IMAGE}
+    container_name: redpanda-1
+    command:
+      - redpanda
+      - start
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --overprovisioned
+      - --node-id 1
+      - --check=false
+
+      # Kafka – external
+      - --kafka-addr PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://${HOST_IP}:9092
+
+      # RPC – internal
+      - --rpc-addr 0.0.0.0:33145
+      - --advertise-rpc-addr redpanda-1:33145
+
+      # Seeds – internal
+      - --seeds redpanda-1:33145,redpanda-2:33146,redpanda-3:33147
+
+    ports:
+      - "9092:9092"
+      - "9644:9644"
+
+    volumes:
+      - redpanda-1:/var/lib/redpanda/data
+    networks: [data-net]
+
+  redpanda-2:
+    image: ${REDPANDA_IMAGE}
+    container_name: redpanda-2
+    command:
+      - redpanda
+      - start
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --overprovisioned
+      - --node-id 2
+      - --check=false
+
+      # Kafka – external
+      - --kafka-addr PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://${HOST_IP}:9093
+
+      # RPC – internal
+      - --rpc-addr 0.0.0.0:33146
+      - --advertise-rpc-addr redpanda-2:33146
+
+      # Seeds – internal
+      - --seeds redpanda-1:33145,redpanda-2:33146,redpanda-3:33147
+
+    ports:
+      - "9093:9092"
+      - "9645:9644"
+
+    volumes:
+      - redpanda-2:/var/lib/redpanda/data
+    networks: [data-net]
+
+  redpanda-3:
+    image: ${REDPANDA_IMAGE}
+    container_name: redpanda-3
+    command:
+      - redpanda
+      - start
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --overprovisioned
+      - --node-id 3
+      - --check=false
+
+      # Kafka – external
+      - --kafka-addr PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://${HOST_IP}:9094
+
+      # RPC – internal
+      - --rpc-addr 0.0.0.0:33147
+      - --advertise-rpc-addr redpanda-3:33147
+
+      # Seeds – internal
+      - --seeds redpanda-1:33145,redpanda-2:33146,redpanda-3:33147
+
+    ports:
+      - "9094:9092"
+      - "9646:9644"
+
+    volumes:
+      - redpanda-3:/var/lib/redpanda/data
+    networks: [data-net]
+
+networks:
+  data-net:
+    driver: bridge
+
+volumes:
+  redpanda-1:
+  redpanda-2:
+  redpanda-3:

@@ -1,0 +1,25 @@
+# version: "3.9"
+# mongo
+
+services:
+  mongo:
+    image: ${MONGO_IMAGE}
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "${MONGO_PORT}:27017"
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+    command: ["mongod", "--bind_ip_all"]
+    networks: [data-net]
+
+networks:
+  data-net:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  mongo-config:
