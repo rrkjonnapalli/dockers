@@ -3,7 +3,10 @@
 
 services:
   postgres:
-    image: ${POSTGRES_IMAGE}
+    # image: ${POSTGRES_IMAGE}
+    build:
+      context: ./build/pg
+      dockerfile: Dockerfile
     container_name: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
